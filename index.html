@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HookFlow AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #020408;
+  --green: #00ff88;
+  --blue: #00aaff;
+  --card: rgba(255,255,255,0.03);
+  --border: rgba(255,255,255,0.07);
+  --text: #e8eaf0;
+  --muted: #6b7280;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; min-height: 100vh; }
+.bg-mesh { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 80% 50% at 10% 0%, rgba(0,255,136,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 90% 100%, rgba(0,170,255,0.06) 0%, transparent 60%), var(--bg); }
+.grid-overlay { position: fixed; inset: 0; z-index: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 60px 60px; }
+.wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 60px 20px 100px; }
+.header { text-align: center; margin-bottom: 50px; }
+.logo-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 100px; border: 1px solid rgba(0,255,136,0.3); background: rgba(0,255,136,0.05); font-size: 12px; color: var(--green); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+.logo-badge span { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+h1 { font-family: 'Syne', sans-serif; font-size: clamp(2.8rem, 8vw, 5rem); font-weight: 800; line-height: 1; letter-spacing: -2px; background: linear-gradient(135deg, #fff 30%, var(--green) 70%, var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; }
+.tagline { font-size: 1.05rem; color: var(--muted); max-width: 500px; margin: 0 auto; line-height: 1.7; }
+.quick-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
+.qbtn { padding: 10px 18px; border-radius: 100px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 13px; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+.qbtn:hover { border-color: rgba(0,255,136,0.4); background: rgba(0,255,136,0.05); color: var(--green); transform: translateY(-2px); }
+
+/* LANGUAGE SELECTOR */
+.lang-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+.lang-label {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lang-select {
+  padding: 10px 18px;
+  border-radius: 100px;
+  border: 1px solid rgba(0,255,136,0.3);
+  background: rgba(0,255,136,0.05);
+  color: var(--green);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300ff88' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.lang-select option { background: #0a0f1a; color: white; }
+
+/* TONE SELECTOR */
+.tone-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+.tone-btn {
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tone-btn.active {
+  border-color: rgba(0,255,136,0.5);
+  background: rgba(0,255,136,0.08);
+  color: var(--green);
+}
+
+.generator { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 30px; backdrop-filter: blur(20px); margin-bottom: 30px; }
+textarea { width: 100%; height: 120px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 14px; padding: 18px; color: var(--text); font-size: 15px; font-family: inherit; resize: none; outline: none; transition: border 0.2s; margin-bottom: 16px; }
+textarea:focus { border-color: rgba(0,255,136,0.3); }
+textarea::placeholder { color: var(--muted); }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-gen { padding: 13px 28px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--green), var(--blue)); color: #000; font-weight: 700; font-family: inherit; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+.btn-gen:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,255,136,0.3); }
+.btn-gen:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-sec { padding: 13px 20px; border-radius: 12px; border: 1px solid var(--border); background: transparent; color: var(--text); font-family: inherit; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.btn-sec:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+.result-box { margin-top: 24px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 16px; padding: 24px; min-height: 150px; font-size: 15px; line-height: 1.8; color: var(--text); white-space: pre-wrap; display: none; }
+.result-box.visible { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.result-label { font-size: 11px; letter-spacing: 2px; color: var(--green); text-transform: uppercase; margin-bottom: 12px; font-weight: 600; }
+.loading-dots { display: inline-flex; gap: 6px; align-items: center; }
+.loading-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: dot 1.2s infinite; }
+.loading-dots span:nth-child(2){animation-delay:0.2s} .loading-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes dot { 0%,80%,100%{transform:scale(0.6);opacity:0.3} 40%{transform:scale(1);opacity:1} }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 24px; text-align: center; }
+.stat h2 { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--green), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.stat p { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.section-title { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; margin-bottom: 24px; text-align: center; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 24px; transition: all 0.3s; }
+.card:hover { border-color: rgba(0,255,136,0.3); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,255,136,0.08); }
+.card-icon { font-size: 1.8rem; margin-bottom: 12px; }
+.card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: var(--green); }
+.card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.history { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 24px; margin-bottom: 40px; }
+.history h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+.history-item { padding: 12px 16px; background: rgba(0,0,0,0.3); border-radius: 10px; font-size: 13px; color: var(--muted); margin-bottom: 8px; cursor: pointer; transition: 0.2s; }
+.history-item:hover { color: var(--text); background: rgba(0,255,136,0.05); }
+.email-box { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 40px; text-align: center; margin-bottom: 40px; }
+.email-box h2 { font-family: 'Syne', sans-serif; font-size: 1.6rem; margin-bottom: 8px; }
+.email-box p { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+.email-row { display: flex; gap: 10px; max-width: 440px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
+.email-row input { flex: 1; min-width: 220px; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.4); color: var(--text); font-family: inherit; font-size: 14px; outline: none; }
+.email-row input:focus { border-color: rgba(0,255,136,0.3); }
+footer { text-align: center; color: var(--muted); font-size: 13px; padding-top: 20px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="bg-mesh"></div>
+<div class="grid-overlay"></div>
+
+<div class="wrap">
+
+  <div class="header">
+    <div class="logo-badge"><span></span> Powered by Gemini AI</div>
+    <h1>HookFlow AI</h1>
+    <p class="tagline">Generate viral hooks, scripts, business ideas and creator content — instantly with real AI.</p>
+  </div>
+
+  <div class="quick-btns">
+    <button class="qbtn" onclick="quickPrompt('Give me 5 viral TikTok hooks')">⚡ Hooks</button>
+    <button class="qbtn" onclick="quickPrompt('Give me a profitable business idea for 2026')">💰 Business</button>
+    <button class="qbtn" onclick="quickPrompt('Write me a powerful Instagram bio')">🔥 Bio</button>
+    <button class="qbtn" onclick="quickPrompt('Give me powerful daily motivation')">🚀 Motivation</button>
+    <button class="qbtn" onclick="quickPrompt('Create a viral TikTok caption')">🎬 Captions</button>
+    <button class="qbtn" onclick="quickPrompt('How can I make money online in 2026?')">🧠 Money</button>
+    <button class="qbtn" onclick="quickPrompt('Write a viral TikTok script under 60 seconds')">📜 TikTok Script</button>
+    <button class="qbtn" onclick="quickPrompt('Give me 10 dark psychology persuasion tips')">🖤 Psychology</button>
+  </div>
+
+  <!-- LANGUAGE SELECTOR -->
+  <div class="lang-bar">
+    <span class="lang-label">🌍 Language :</span>
+    <select class="lang-select" id="langSelect">
+      <option value="English">🇬🇧 English</option>
+      <option value="French" selected>🇫🇷 Français</option>
+      <option value="Spanish">🇪🇸 Español</option>
+      <option value="Portuguese">🇧🇷 Português</option>
+      <option value="Arabic">🇸🇦 العربية</option>
+      <option value="German">🇩🇪 Deutsch</option>
+      <option value="Italian">🇮🇹 Italiano</option>
+      <option value="Japanese">🇯🇵 日本語</option>
+      <option value="Chinese">🇨🇳 中文</option>
+      <option value="Russian">🇷🇺 Русский</option>
+      <option value="Korean">🇰🇷 한국어</option>
+      <option value="Hindi">🇮🇳 हिन्दी</option>
+    </select>
+  </div>
+
+  <!-- TONE SELECTOR -->
+  <div class="tone-bar">
+    <span style="font-size:13px;color:var(--muted)">🎭 Tone :</span>
+    <button class="tone-btn active" onclick="setTone(this,'viral & aggressive')">🔥 Viral</button>
+    <button class="tone-btn" onclick="setTone(this,'professional & formal')">💼 Pro</button>
+    <button class="tone-btn" onclick="setTone(this,'funny & casual')">😂 Funny</button>
+    <button class="tone-btn" onclick="setTone(this,'motivational & inspiring')">💪 Motivational</button>
+    <button class="tone-btn" onclick="setTone(this,'luxury & elegant')">💎 Luxury</button>
+    <button class="tone-btn" onclick="setTone(this,'dark & mysterious')">🖤 Dark</button>
+  </div>
+
+  <div class="generator">
+    <textarea id="prompt" placeholder="Ask anything... e.g. Create a viral hook for a luxury brand"></textarea>
+    <div class="actions">
+      <button class="btn-gen" id="genBtn" onclick="generateAI()">🤖 Generate AI</button>
+      <button class="btn-sec" onclick="generateRandom()">🎲 Random Idea</button>
+      <button class="btn-sec" onclick="copyText()">📋 Copy</button>
+      <button class="btn-sec" onclick="shareText()">📤 Share</button>
+      <button class="btn-sec" onclick="clearResult()">🗑 Clear</button>
+    </div>
+    <div class="result-box" id="result"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><h2 id="counter">0</h2><p>AI Generations</p></div>
+    <div class="stat"><h2>24/7</h2><p>Global Access</p></div>
+    <div class="stat"><h2>12+</h2><p>Languages</p></div>
+    <div class="stat"><h2>FREE</h2><p>Freemium Model</p></div>
+  </div>
+
+  <div class="section-title">Startup Features</div>
+
+  <div class="grid">
+    <div class="card"><div class="card-icon">⚡</div><h3>AI Content</h3><p>Generate viral content instantly using real Gemini AI.</p></div>
+    <div class="card"><div class="card-icon">🌍</div><h3>12+ Languages</h3><p>Generate content in any language for any audience worldwide.</p></div>
+    <div class="card"><div class="card-icon">🎭</div><h3>Multiple Tones</h3><p>Switch between viral, professional, funny, luxury and more.</p></div>
+    <div class="card"><div class="card-icon">💸</div><h3>Monetization</h3><p>Transform your audience into real revenue streams.</p></div>
+    <div class="card"><div class="card-icon">📱</div><h3>Mobile First</h3><p>Designed for mobile creators on the go.</p></div>
+    <div class="card"><div class="card-icon">🔥</div><h3>Premium</h3><p>Unlimited AI generation and advanced creator tools.</p></div>
+  </div>
+
+  <div class="history">
+    <h2>🕒 Recent Generations</h2>
+    <div id="historyList"><div class="history-item">No generations yet — ask something above!</div></div>
+  </div>
+
+  <div class="email-box">
+    <h2>Join the AI creator movement</h2>
+    <p>Get early access to premium features and exclusive AI tools.</p>
+    <div class="email-row">
+      <input type="email" placeholder="Enter your email">
+      <button class="btn-gen" onclick="fakeSubscribe()">Join Free</button>
+    </div>
+  </div>
+
+  <footer>HookFlow AI © 2026 — Future of AI creator tools.</footer>
+
+</div>
+
+<script>
+const API_KEY = "AIzaSyCQwDhskLNkjUS2kpKU0hqPeJgB9sLOdPU";
+let total = 0;
+let currentTone = 'viral & aggressive';
+const historyData = [];
+
+function setTone(btn, tone) {
+  document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentTone = tone;
+}
+
+function updateHistory(text) {
+  historyData.unshift(text);
+  if (historyData.length > 8) historyData.pop();
+  const list = document.getElementById('historyList');
+  list.innerHTML = historyData.map(item =>
+    `<div class="history-item" onclick="document.getElementById('prompt').value='${item.replace(/'/g, "\\'")}'">
+      ${item.length > 80 ? item.substring(0,80)+'...' : item}
+    </div>`
+  ).join('');
+}
+
+function quickPrompt(text) {
+  document.getElementById('prompt').value = text;
+  generateAI();
+}
+
+async function generateAI() {
+  const promptText = document.getElementById('prompt').value.trim();
+  if (!promptText) { alert('Write something first!'); return; }
+
+  const lang = document.getElementById('langSelect').value;
+  const result = document.getElementById('result');
+  const btn = document.getElementById('genBtn');
+
+  const fullPrompt = `You are HookFlow AI, a viral content expert. 
+Respond ONLY in ${lang} language.
+Use a ${currentTone} tone.
+Request: ${promptText}`;
+
+  result.className = 'result-box visible';
+  result.innerHTML = `<div class="result-label">🤖 AI is generating in ${lang}...</div><div class="loading-dots"><span></span><span></span><span></span></div>`;
+  btn.disabled = true;
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: fullPrompt }] }]
+        })
+      }
+    );
+
+    const data = await response.json();
+    const text = data.candidates[0].content.parts[0].text;
+
+    result.innerHTML = `
+      <div class="result-label">✦ Generated in ${lang} · ${currentTone} tone</div>
+      ${text}
+    `;
+
+    total++;
+    document.getElementById('counter').textContent = total;
+    updateHistory(promptText);
+
+  } catch (err) {
+    result.innerHTML = `❌ Error. Please try again.\n${err.message}`;
+  }
+
+  btn.disabled = false;
+}
+
+function generateRandom() {
+  const ideas = [
+    'Create a luxury brand TikTok script',
+    'Give me 10 viral hooks for Instagram',
+    'How to grow on TikTok in 2026',
+    'Create a YouTube Shorts idea',
+    'Best online business ideas in 2026',
+    'Write a powerful motivational speech',
+    'Create a dropshipping product ad',
+    'Give me a dark psychology persuasion hook',
+    'Write a viral Twitter thread about money',
+    'Create a personal brand statement'
+  ];
+  const random = ideas[Math.floor(Math.random() * ideas.length)];
+  document.getElementById('prompt').value = random;
+  generateAI();
+}
+
+function copyText() {
+  const text = document.getElementById('result').innerText;
+  if (!text || text.includes('No generations')) { alert('Nothing to copy!'); return; }
+  navigator.clipboard.writeText(text);
+  alert('Copied 🚀');
+}
+
+function shareText() {
+  const text = document.getElementById('result').innerText;
+  if (navigator.share) {
+    navigator.share({ title: 'HookFlow AI', text });
+  } else {
+    alert('Sharing not supported on this browser.');
+  }
+}
+
+function clearResult() {
+  const result = document.getElementById('result');
+  result.className = 'result-box';
+  result.innerHTML = '';
+  document.getElementById('prompt').value = '';
+}
+
+function fakeSubscribe() {
+  alert("Welcome to HookFlow AI 🚀 You're on the list!");
+}
+</script>
+</body>
+</html>
